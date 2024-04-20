@@ -1,0 +1,14 @@
+[package]
+name = "png-to-twmap"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "4.5.4", features = ["derive"] }
+image = "0.25.1"
+ndarray = "0.15.6"
+rsn = "0.1.0"
+serde = { version = "1.0.198", features = ["derive"] }
+twmap = "0.12.0"
