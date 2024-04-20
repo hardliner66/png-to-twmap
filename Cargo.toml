@@ -2,6 +2,9 @@
 name = "png-to-twmap"
 version = "0.1.0"
 edition = "2021"
+description = "Creates a teeworlds map from a png"
+license-file = "LICENSE"
+repository = "https://github.com/hardliner66/png-to-twmap"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
