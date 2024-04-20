@@ -46,7 +46,7 @@ pub fn export(
         .unwrap_mut();
 
     *game_layer =
-        Array2::<GameTile>::from_elem((width, height), GameTile::new(0, TileFlags::empty()));
+        Array2::<GameTile>::from_elem((height, width), GameTile::new(0, TileFlags::empty()));
 
     // modify game layer
     for (x, y, value) in pixels {
