@@ -23,8 +23,19 @@ enum Command {
         mappings: Option<PathBuf>,
         /// The path to the input png file
         input_png: PathBuf,
+        #[arg(short, long)]
         /// The path where the output map will be saved
-        output_map: PathBuf,
+        output_map: Option<PathBuf>,
+    },
+    ConvertFolder {
+        #[arg(short, long)]
+        mappings: Option<PathBuf>,
+        #[clap(value_parser)]
+        /// Path to the input folder containing PNG files
+        input_folder: PathBuf,
+        #[clap(value_parser)]
+        /// Path to the output folder where converted maps will be saved
+        output_folder: PathBuf,
     },
 }
 
@@ -104,25 +115,30 @@ fn main() {
         Command::ExportMappings => {
             println!("{DEFAULT_MAPPING}");
         }
-        Command::Convert {
+         Command::Convert {
             mappings,
             input_png,
             output_map,
         } => {
             let mappings: HashMap<[u8; 4], BlockType> = mappings
                 .map(|path| {
-                    rsn::from_str(
-                        &std::fs::read_to_string(path).expect("Config file doesn't exist"),
-                    )
-                    .expect("Failed to parse config")
+                    rsn::from_str(&std::fs::read_to_string(path).expect("Config file doesn't exist"))
+                        .expect("Failed to parse config")
                 })
                 .unwrap_or_else(|| rsn::from_str(DEFAULT_MAPPING).expect("Failed to parse config"));
 
             // Open the image file
-            let img = image::open(input_png).expect("Failed to open image");
+            let img = image::open(&input_png).expect("Failed to open image");
 
             // Get the dimensions of the image
             let (width, height) = img.dimensions();
+
+            // Determine output file name based on input or provided name
+            let output_map = output_map.unwrap_or_else(|| {
+                let mut new_path = input_png.clone();
+                new_path.set_extension("map");
+                new_path
+            });
 
             export(
                 &output_map,
@@ -131,6 +147,41 @@ fn main() {
                 img.pixels(),
                 &mappings,
             );
+        }
+
+        Command::ConvertFolder {
+            mappings,
+            input_folder,
+            output_folder,
+        } => {
+            let mappings: HashMap<[u8; 4], BlockType> = mappings
+                .map(|path| rsn::from_str(&std::fs::read_to_string(path).expect("Config file doesn't exist")).expect("Failed to parse config"))
+                .unwrap_or_else(|| rsn::from_str(DEFAULT_MAPPING).expect("Failed to parse config"));
+
+            if std::fs::create_dir_all(&output_folder).is_err() {
+                println!("Failed to create output directory.");
+                return;
+            }
+
+            for entry in std::fs::read_dir(input_folder).expect("Failed to read input directory") {
+                let entry = entry.expect("Failed to read entry");
+                let path = entry.path();
+                if path.is_file() && path.extension().map_or(false, |e| e == "png") {
+                    let file_name = path.file_name().unwrap().to_str().unwrap().to_owned();
+                    let output_map = output_folder.join(file_name.replace(".png", ".map"));
+
+                    let img = image::open(&path).expect("Failed to open image");
+                    let (width, height) = img.dimensions();
+
+                    export(
+                        &output_map,
+                        width as usize,
+                        height as usize,
+                        img.pixels(),
+                        &mappings,
+                    );
+                }
+            }
         }
     }
 }
