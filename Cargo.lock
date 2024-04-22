@@ -800,7 +800,7 @@ dependencies = [
 
 [[package]]
 name = "png-to-twmap"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "clap",
  "image 0.25.1",

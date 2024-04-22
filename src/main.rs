@@ -3,8 +3,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use clap::Parser;
-use image::{DynamicImage, GenericImageView, Pixel, Pixels};
+use clap::{Parser, ValueEnum};
+use image::{DynamicImage, GenericImageView, Pixel, Pixels, imageops::FilterType};
 use ndarray::Array2;
 use serde::{Deserialize, Serialize};
 use twmap::{GameLayer, GameTile, TileFlags, TilemapLayer, TwMap};
@@ -15,15 +15,53 @@ struct Args {
     command: Command,
 }
 
+#[derive(ValueEnum, Debug, Clone, Copy)]
+pub enum ResizeFilterType {
+    /// Nearest Neighbor
+    Nearest,
+    /// Linear Filter
+    Triangle,
+    /// Cubic Filter
+    CatmullRom,
+    /// Gaussian Filter
+    Gaussian,
+    /// Lanczos with window 3
+    Lanczos3,
+}
+
+impl ResizeFilterType {
+    fn into_filter_type(self) -> FilterType {
+        match self {
+            ResizeFilterType::Nearest =>FilterType::Nearest,
+            ResizeFilterType::Triangle =>FilterType::Triangle,
+            ResizeFilterType::CatmullRom =>FilterType::CatmullRom,
+            ResizeFilterType::Gaussian =>FilterType::Gaussian,
+            ResizeFilterType::Lanczos3 =>FilterType::Lanczos3,
+        }
+    }
+}
+
+#[derive(Parser)]
+struct GlobalOptions {
+    #[arg(short, long)]
+    /// The mappings to use for the conversion
+    mappings: Option<PathBuf>,
+    #[arg(short, long, default_value = "1")]
+    /// The size per tile
+    tile_size: u32,
+    /// The filter to use when resizing
+    #[arg(short, long, default_value = "nearest")]
+    resize_filter_type: ResizeFilterType,
+}
+
 #[derive(Parser)]
 enum Command {
     /// Prints the default mappings to stdout
     ExportMappings,
     /// Converts a PNG to a tw map
     Convert {
-        #[arg(short, long)]
-        /// The mappings to use for the conversion
-        mappings: Option<PathBuf>,
+        #[clap(flatten)]
+        global: GlobalOptions,
         /// The path to the input PNG file
         input_png: PathBuf,
         #[arg(short, long)]
@@ -32,9 +70,8 @@ enum Command {
     },
     /// Converts all PNGs in a directory to tw maps
     ConvertDirectory {
-        #[arg(short, long)]
-        /// The mappings to use for the conversion
-        mappings: Option<PathBuf>,
+        #[clap(flatten)]
+        global: GlobalOptions,
         /// Path to the input directory containing PNG files
         input_directory: PathBuf,
         /// Path to the output directory where converted maps will be saved
@@ -125,12 +162,18 @@ fn parse_mappings(mappings: Option<PathBuf>) -> Mappings {
     )
 }
 
-fn create_map(mappings: &Mappings, input_png: &PathBuf, output_map: Option<PathBuf>) {
+fn create_map(mappings: &Mappings, tile_size: u32, resize_filter_type: ResizeFilterType, input_png: &PathBuf, output_map: Option<PathBuf>) {
     // Open the image file
-    let img = image::open(input_png).expect("Failed to open image");
+    let mut img = image::open(input_png).expect("Failed to open image");
 
     // Get the dimensions of the image
-    let (width, height) = img.dimensions();
+    let (mut width, mut height) = img.dimensions();
+
+    if tile_size > 1 {
+        width /= tile_size;
+        height /= tile_size;
+        img = img.resize(width, height, resize_filter_type.into_filter_type());
+    }
 
     // Determine output file name based on input or provided name
     let output_map = output_map.unwrap_or_else(|| input_png.with_extension("map"));
@@ -151,20 +194,20 @@ fn main() {
             println!("{DEFAULT_MAPPING}");
         }
         Command::Convert {
-            mappings,
+            global,
             input_png,
             output_map,
         } => {
-            let mappings: HashMap<[u8; 4], BlockType> = parse_mappings(mappings);
-            create_map(&mappings, &input_png, output_map);
+            let mappings: HashMap<[u8; 4], BlockType> = parse_mappings(global.mappings);
+            create_map(&mappings, global.tile_size, global.resize_filter_type, &input_png, output_map);
         }
 
         Command::ConvertDirectory {
-            mappings,
+            global,
             input_directory,
             output_directory,
         } => {
-            let mappings: HashMap<[u8; 4], BlockType> = parse_mappings(mappings);
+            let mappings: HashMap<[u8; 4], BlockType> = parse_mappings(global.mappings);
 
             let output_directory = output_directory.unwrap_or_else(|| input_directory.clone());
 
@@ -182,7 +225,7 @@ fn main() {
                     let output_map =
                         output_directory.join(Path::new(file_name).with_extension("map"));
 
-                    create_map(&mappings, &path, Some(output_map));
+                    create_map(&mappings, global.tile_size, global.resize_filter_type, &path, Some(output_map));
                 }
             }
         }
