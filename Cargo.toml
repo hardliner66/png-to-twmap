@@ -1,6 +1,6 @@
 [package]
 name = "png-to-twmap"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 description = "Creates a teeworlds map from a png"
 license-file = "LICENSE"
