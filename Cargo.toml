@@ -1,6 +1,6 @@
 [package]
 name = "png-to-twmap"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 description = "Creates a teeworlds map from a png"
 license-file = "LICENSE"
@@ -11,6 +11,7 @@ repository = "https://github.com/hardliner66/png-to-twmap"
 [dependencies]
 clap = { version = "4.5.4", features = ["derive"] }
 image = "0.25.1"
+kdtree = "0.7.0"
 ndarray = "0.15.6"
 rsn = "0.1.0"
 serde = { version = "1.0.198", features = ["derive"] }

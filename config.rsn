@@ -1,9 +1,28 @@
 {
-    (0,0,0,255):       Hookable,
-    (0,228,54,255):    Empty,
-    (95,87,79,255):    Freeze,
-    (255,163,0,255):   Spawn,
-    (255,236,39,255):  Start,
-    (255,241,232,255): Finish,
-    (0,0,6,255):       Custom(123),
+    // #B97A57
+    (185, 122,  87, 255): Hookable,
+
+    // #FF7F27
+    (255, 127,  39, 255): Unhookable,
+
+    // #000000
+    (  0,   0,   0, 255): Empty,
+
+    // #C3C3C3
+    (195, 195, 195, 255): Freeze,
+
+    // #3F48CC
+    ( 63,  72, 204, 255): Spawn,
+
+    // #FFC90E
+    (255, 201,  14, 255): Start,
+
+    // #22B14C
+    ( 34, 177,  76, 255): Finish,
+
+    // this is just for demonstration purposes.
+    // you can put in any color in rgba format to the left
+    // and specify which tile it should map to on the right.
+    // it will use the number thats passed to custom.
+    (  0,   0,   6, 255): Custom(123),
 }
