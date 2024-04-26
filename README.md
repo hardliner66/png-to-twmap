@@ -9,15 +9,15 @@ It should also work to drag & drop the file onto the exe, if you're on windows.
 
 ## Default Colors
 
-| Name       | HTML-Color | preview                             |
-| ---------- | ---------- | ----------------------------------- |
-| Hookable   | #B97A57    | <div style="color:#B97A57;">▇</div> |
-| Unhookable | #FF7F27    | <div style="color:#FF7F27;">▇</div> |
-| Air        | #000000    | <div style="color:#000000;">▇</div> |
-| Freeze     | #C3C3C3    | <div style="color:#C3C3C3;">▇</div> |
-| Spawn      | #3F48CC    | <div style="color:#3F48CC;">▇</div> |
-| Start      | #FFC90E    | <div style="color:#FFC90E;">▇</div> |
-| Finish     | #22B14C    | <div style="color:#22B14C;">▇</div> |
+| Name       | HTML-Color | preview                                                                     |
+| ---------- | ---------- | --------------------------------------------------------------------------- |
+| Hookable   | #B97A57    | <img src="./assets/hookable.png" alt="brown" width = 16px height = 16px>    |
+| Unhookable | #FF7F27    | <img src="./assets/unhookable.png" alt="orange" width = 16px height = 16px> |
+| Air        | #000000    | <img src="./assets/air.png" alt="black" width = 16px height = 16px>         |
+| Freeze     | #C3C3C3    | <img src="./assets/freeze.png" alt="light grey" width = 16px height = 16px> |
+| Spawn      | #3F48CC    | <img src="./assets/spawn.png" alt="indigo" width = 16px height = 16px>      |
+| Start      | #FFC90E    | <img src="./assets/start.png" alt="gold/yellow" width = 16px height = 16px> |
+| Finish     | #22B14C    | <img src="./assets/finish.png" alt="green" width = 16px height = 16px>      |
 
 ## Configuration
 
